@@ -1,6 +1,6 @@
 package main
 
-import "./life"
+import "github.com/andreygrehov/gameoflife/life"
 
 func main() {
 	game := life.New()
