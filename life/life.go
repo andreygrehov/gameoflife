@@ -6,50 +6,18 @@ import (
 )
 
 const (
-	boardRows = 20
-	boardCols = 60
+	_clearScreen = "\033[H\033[2J"
+	_moveTo0x0   = "\033[0;0H"
 )
 
 type Game struct {
-	board [boardRows][boardCols]cell
-}
-
-type cellState int
-
-const (
-	dead cellState = iota
-	alive
-)
-
-type cell int
-
-func (c cell) String() string {
-	if c.isDead() {
-		return " "
-	}
-
-	return "█"
-}
-
-func (c cell) isAlive() bool {
-	return cellState(c) == alive
-}
-
-func (c cell) isDead() bool {
-	return cellState(c) == dead
-}
-
-func (c *cell) alive() {
-	*c = 1
-}
-
-func (c *cell) dead() {
-	*c = 0
+	activeBoard board
+	shadowBoard board
 }
 
 func New() Game {
-	return Game{
-		board: [boardRows][boardCols]cell{
+	g := Game{
+		activeBoard: [boardRows][boardCols]cell{
 			{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -63,55 +31,38 @@ func New() Game {
 			{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 	}
+	g.shadowBoard = g.activeBoard
+	return g
 }
 
 func (g *Game) step() {
-	dirs := [][]int{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}}
-	newBoard := g.board
-	for i := range g.board {
-		for j := range g.board[i] {
-			var neighbours int
-			oldCell := g.board[i][j]
-			newCell := &newBoard[i][j]
-			for _, dir := range dirs {
-				ri := i + dir[0]
-				rj := j + dir[1]
+	for i := range g.activeBoard {
+		for j := range g.activeBoard[i] {
 
-				if ri < 0 || ri == len(g.board) || rj < 0 || rj == len(g.board[i]) {
-					continue
-				}
-
-				if g.board[ri][rj].isAlive() {
-					neighbours++
-				}
+			neighbours := g.activeBoard.countNeighbours(i, j)
+			if g.activeBoard.isAlive(i, j) && neighbours < 2 {
+				g.shadowBoard.setDead(i, j)
 			}
-			if oldCell.isAlive() && neighbours < 2 {
-				newCell.dead()
-				continue
+			if g.activeBoard.isAlive(i, j) && (neighbours == 2 || neighbours == 3) {
+				g.shadowBoard.setAlive(i, j)
 			}
-			if oldCell.isAlive() && (neighbours == 2 || neighbours == 3) {
-				newCell.alive()
-				continue
+			if g.activeBoard.isAlive(i, j) && neighbours > 3 {
+				g.shadowBoard.setDead(i, j)
 			}
-			if oldCell.isAlive() && neighbours > 3 {
-				newCell.dead()
-				continue
-			}
-			if oldCell.isDead() && neighbours == 3 {
-				newCell.alive()
-				continue
+			if g.activeBoard.isDead(i, j) && neighbours == 3 {
+				g.shadowBoard.setAlive(i, j)
 			}
 		}
 	}
-	g.board = newBoard
+	g.activeBoard = g.shadowBoard
 }
 
 func (g *Game) render() {
 	fmt.Print(_clearScreen)
 	fmt.Print(_moveTo0x0)
-	for i := range g.board {
-		for j := range g.board[i] {
-			c := g.board[i][j]
+	for i := range g.activeBoard {
+		for j := range g.activeBoard[i] {
+			c := g.activeBoard[i][j]
 			fmt.Print(c)
 		}
 		fmt.Println()
