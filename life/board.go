@@ -1,11 +1,28 @@
 package life
 
+import (
+	"strings"
+)
+
 const (
 	boardRows = 20
 	boardCols = 60
 )
 
+const lineBreak = "\n"
+
 type board [boardRows][boardCols]cell
+
+func (b board) String() string {
+	var builder strings.Builder
+	for i := range b {
+		for j := range b[i] {
+			builder.WriteString(b[i][j].String())
+		}
+		builder.WriteString(lineBreak)
+	}
+	return builder.String()
+}
 
 func (b board) isAlive(i, j int) bool {
 	return b[i][j] == _aliveCell

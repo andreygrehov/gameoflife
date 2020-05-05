@@ -54,13 +54,7 @@ func (g *Game) step() {
 func (g *Game) render() {
 	fmt.Print(_clearScreen)
 	fmt.Print(_moveTo0x0)
-	for i := range g.activeBoard {
-		for j := range g.activeBoard[i] {
-			c := g.activeBoard[i][j]
-			fmt.Print(c)
-		}
-		fmt.Println()
-	}
+	fmt.Println(g.activeBoard)
 }
 
 func (g *Game) Start() {
