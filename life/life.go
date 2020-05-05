@@ -38,18 +38,12 @@ func New() Game {
 func (g *Game) step() {
 	for i := range g.activeBoard {
 		for j := range g.activeBoard[i] {
-
 			neighbours := g.activeBoard.countNeighbours(i, j)
-			if g.activeBoard.isAlive(i, j) && neighbours < 2 {
-				g.shadowBoard.setDead(i, j)
-			}
-			if g.activeBoard.isAlive(i, j) && (neighbours == 2 || neighbours == 3) {
-				g.shadowBoard.setAlive(i, j)
-			}
-			if g.activeBoard.isAlive(i, j) && neighbours > 3 {
-				g.shadowBoard.setDead(i, j)
-			}
-			if g.activeBoard.isDead(i, j) && neighbours == 3 {
+			if g.activeBoard.isAlive(i, j) {
+				if neighbours < 2 || neighbours > 3 {
+					g.shadowBoard.setDead(i, j)
+				}
+			} else if neighbours == 3 {
 				g.shadowBoard.setAlive(i, j)
 			}
 		}
