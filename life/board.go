@@ -8,19 +8,19 @@ const (
 type board [boardRows][boardCols]cell
 
 func (b board) isAlive(i, j int) bool {
-	return b[i][j] == cell(alive)
+	return b[i][j] == _aliveCell
 }
 
 func (b board) isDead(i, j int) bool {
-	return b[i][j] == cell(dead)
+	return b[i][j] == _deadCell
 }
 
 func (b *board) setAlive(i, j int) {
-	(*b)[i][j] = cell(alive)
+	(*b)[i][j] = _aliveCell
 }
 
 func (b *board) setDead(i, j int) {
-	(*b)[i][j] = cell(dead)
+	(*b)[i][j] = _deadCell
 }
 
 func (b board) countNeighbours(i, j int) int {
